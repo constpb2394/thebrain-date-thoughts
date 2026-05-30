@@ -7,6 +7,17 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.thebrain_url: '%env(THEBRAIN_API_URL)'
+    app.thebrain_api_key: '%env(THEBRAIN_API_KEY)'
+    app.date_type_thought_id: '%env(DATE_TYPE_THOUGHT_ID)'
+    app.week_tag_ids:
+        - '%env(MONDAY_TAG_ID)'
+        - '%env(TUESDAY_TAG_ID)'
+        - '%env(WEDNESDAY_TAG_ID)'
+        - '%env(THIRSDAY_TAG_ID)'
+        - '%env(FRIDAY_TAG_ID)'
+        - '%env(SUNDAY_TAG_ID)'
+        - '%env(SATURDAY_TAG_ID)'
 
 services:
     # default configuration for services in *this* file
@@ -21,3 +32,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Services\TheBrainService:
+        arguments:
+            $apiUrl: '%app.thebrain_url%'
+            $apiKey: '%app.thebrain_api_key%'
+
+    App\Services\TheBrainDateService:
+        arguments:
+            $dateTypeThoughtId: '%app.date_type_thought_id%'
+            $weekTagsIds: '%app.week_tag_ids%'

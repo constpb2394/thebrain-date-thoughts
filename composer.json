@@ -4,17 +4,17 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.2",
-        "ext-ctype": "*",
-        "ext-iconv": "*",
-        "symfony/console": "7.4.*",
-        "symfony/dotenv": "7.4.*",
-        "symfony/flex": "^2",
-        "symfony/framework-bundle": "7.4.*",
-        "symfony/runtime": "7.4.*",
-        "symfony/yaml": "7.4.*"
-    },
-    "require-dev": {
+        "php"                      : ">=8.2",
+        "ext-ctype"                : "*",
+        "ext-iconv"                : "*",
+        "guzzlehttp/guzzle"        : "^7.10",
+        "symfony/console"          : "7.4.*",
+        "symfony/dotenv"           : "7.4.*",
+        "symfony/flex"             : "^2",
+        "symfony/framework-bundle" : "7.4.*",
+        "symfony/runtime"          : "7.4.*",
+        "symfony/yaml"             : "7.4.*",
+        "ext-calendar"             : "*"
     },
     "config": {
         "allow-plugins": {
@@ -65,5 +65,9 @@
             "allow-contrib": false,
             "require": "7.4.*"
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*",
+        "symfony/maker-bundle": "^1.67"
     }
 }
