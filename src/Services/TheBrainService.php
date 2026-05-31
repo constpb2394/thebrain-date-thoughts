@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Exceptions\InvalidBrainException;
 use App\Services\Enum\ThoughtAccessType;
 use App\Services\Enum\ThoughtKind;
 use App\Services\Enum\ThoughtRelation;
@@ -14,23 +13,16 @@ class TheBrainService
 {
     private const CONTENT_TYPE = 'application/json';
 
-    private ?string $brainId = null;
-
     public function __construct(
-        private readonly HttpClient $client,
         private readonly string $apiUrl,
         private readonly string $apiKey,
+        private readonly string $brainId,
+        private ?HttpClient $client,
     ) {
-
-    }
-
-    public function setBrainId(string $brainId): void
-    {
-        $this->brainId = $brainId;
+        $this->client = $client ?? new HttpClient();
     }
 
     /**
-     * @throws InvalidBrainException
      * @throws GuzzleException
      */
     public function createThought(
@@ -40,10 +32,6 @@ class TheBrainService
         ?string $sourceThoughtId = null,
         ?ThoughtRelation $thoughtRelation = null,
     ): string {
-        if (null === $this->brainId) {
-            throw new InvalidBrainException();
-        }
-
         $body = [
             'name' => $name,
             'kind' => $thoughtKind,
@@ -73,7 +61,6 @@ class TheBrainService
     }
 
     /**
-     * @throws InvalidBrainException
      * @throws GuzzleException
      */
     public function linkThoughts(
@@ -82,10 +69,6 @@ class TheBrainService
         ThoughtRelation $thoughtRelation,
         ?string $name = null,
     ): string {
-        if (null === $this->brainId) {
-            throw new InvalidBrainException();
-        }
-
         $body = [
             'thoughtIdA' => $thoughtIdA,
             'thoughtIdB' => $thoughtIdB,
@@ -114,15 +97,9 @@ class TheBrainService
     }
 
     /**
-     * @throws InvalidBrainException
      * @throws GuzzleException
      */
-    public function deleteThought(string $thoughtId) {
-        if (null === $this->brainId) {
-            throw new InvalidBrainException();
-        }
-
-
+    public function deleteThought(string $thoughtId): void {
         $url = "{$this->apiUrl}/thoughts/{$this->brainId}/{$thoughtId}";
 
         $this->client->request('DELETE', $url, [

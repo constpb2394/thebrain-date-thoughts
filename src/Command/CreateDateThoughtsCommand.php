@@ -2,9 +2,12 @@
 
 namespace App\Command;
 
+use App\Exceptions\TheBrainException;
 use App\Services\TheBrainDateService;
+use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,46 +21,30 @@ class CreateDateThoughtsCommand extends Command
 {
     public function __construct(
         private readonly TheBrainDateService $theBrainDateService,
-    )
-    {
+    ) {
         parent::__construct();
     }
 
     protected function configure(): void
     {
         $this
+            ->addArgument(
+                'parent',
+                InputArgument::REQUIRED,
+                'Идентификатор ноды родителя'
+            )
             ->addOption(
                 'month',
                 'm',
                 InputOption::VALUE_REQUIRED,
                 'Номер месяца за который надо создать'
-            )
-            ->addOption(
-                'parent',
-                'p',
-                InputOption::VALUE_REQUIRED,
-                'Идентификатор ноды родителя'
-            )
-            ->addOption(
-                'type',
-                't',
-                InputOption::VALUE_REQUIRED,
-                'Идентификатор ноды типа Дата'
-            )
-            ->addOption(
-                'dry-run',
-                'dr',
-                InputOption::VALUE_NONE,
-                'Холостой запуск'
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $month = filter_var($input->getOption('month') ?? 0, FILTER_SANITIZE_NUMBER_INT);
-        $parentNodeId = $input->getOption('parent');
-        $typeNodeId = $input->getOption('type');
-        $isDryRun = (bool) $input->getOption('type');
+        $parentNodeId = $input->getArgument('parent');
 
         $io = new SymfonyStyle($input, $output);
 
@@ -75,7 +62,11 @@ class CreateDateThoughtsCommand extends Command
 
         $year = date_create()->format('Y');
 
-        $this->theBrainDateService->createsDateThoughts($month, $year, $parentNodeId);
+        try {
+            $this->theBrainDateService->createDateThoughts($month, $year, $parentNodeId);
+        } catch (TheBrainException | GuzzleException $e) {
+            $io->error($e->getMessage());
+        }
 
         return Command::SUCCESS;
     }

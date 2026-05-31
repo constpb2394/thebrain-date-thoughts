@@ -33,8 +33,7 @@ class TheBrainDateService
         private readonly TheBrainService $theBrainService,
         private readonly string $dateTypeThoughtId,
         private readonly array $weekTagIds,
-    )
-    {
+    ) {
 
     }
 
@@ -45,7 +44,7 @@ class TheBrainDateService
      *
      * @return array<string>
      */
-    public function createsDateThoughts(
+    public function createDateThoughts(
         int $month,
         int $year,
         string $parentNodeId
@@ -54,9 +53,10 @@ class TheBrainDateService
 
         try {
             $days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
             $previousThoughtId = null;
             for ($day = 1; $day <= $days; $day++) {
-                $thoughtName = $day.' '.self::MONTHS[$month].' '.$year;
+                $thoughtName = $day . ' ' . self::MONTHS[$month] . ' ' . $year;
 
                 $thoughtId = $this->theBrainService->createThought(
                     $thoughtName,
@@ -70,9 +70,9 @@ class TheBrainDateService
 
                 $weekDayTagId = $this->weekTagIds[$dayNumber - 1];
 
-                $this->theBrainService->linkThoughts($thoughtId, $this->dateTypeThoughtId, ThoughtRelation::CHILD);
-                $this->theBrainService->linkThoughts($thoughtId, $weekDayTagId, ThoughtRelation::CHILD);
-                $this->theBrainService->linkThoughts($thoughtId, $parentNodeId, ThoughtRelation::CHILD);
+                $this->theBrainService->linkThoughts($this->dateTypeThoughtId, $thoughtId, ThoughtRelation::CHILD);
+                $this->theBrainService->linkThoughts($weekDayTagId, $thoughtId, ThoughtRelation::CHILD);
+                $this->theBrainService->linkThoughts($parentNodeId, $thoughtId,  ThoughtRelation::CHILD);
 
                 $createdThoughts[] = $thoughtId;
                 $previousThoughtId = $thoughtId;

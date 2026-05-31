@@ -10,9 +10,9 @@ use GuzzleHttp\Client;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 
-class TheBrainTest extends TestCase
+class ThoughtTest extends TestCase
 {
-    private TheBrainService $service;
+    private TheBrainService $theBrainService;
 
     private static string $thoughtA;
     private static string $thoughtB;
@@ -24,13 +24,12 @@ class TheBrainTest extends TestCase
     {
         $client = new Client();
 
-        $this->service = new TheBrainService(
-            $client,
+        $this->theBrainService = new TheBrainService(
             $_ENV['THEBRAIN_API_URL'],
-            $_ENV['THEBRAIN_API_KEY']
+            $_ENV['THEBRAIN_API_KEY'],
+            $_ENV['BRAIN_ID'],
+            $client
         );
-
-        $this->service->setBrainId($_ENV['TEST_BRAIN_ID']);
 
         $this->sourceThoughtId = $_ENV['SOURCE_THOUGHT_ID'];
         $this->defaultDateTypeId = $_ENV['DATE_TYPE_THOUGHT_ID'];
@@ -38,7 +37,7 @@ class TheBrainTest extends TestCase
 
     public function testCreateThought()
     {
-        $thoughtId = $this->service->createThought(
+        $thoughtId = $this->theBrainService->createThought(
             'Test Thought',
             ThoughtKind::NORMAL,
             ThoughtAccessType::PUBLIC
@@ -50,7 +49,7 @@ class TheBrainTest extends TestCase
     }
 
     public function testCreateThoughtWithSource() {
-        $thoughtId = $this->service->createThought(
+        $thoughtId = $this->theBrainService->createThought(
             'Test Thought With Source',
             ThoughtKind::NORMAL,
             ThoughtAccessType::PUBLIC,
@@ -65,11 +64,11 @@ class TheBrainTest extends TestCase
     }
 
     public function testCreateThoughtWithSourceType() {
-        $thoughtId = $this->service->createThought(
+        $thoughtId = $this->theBrainService->createThought(
             'Test Thought With Source Type',
             ThoughtKind::NORMAL,
             ThoughtAccessType::PUBLIC,
-            $this->sourceThoughtId,
+            $this->defaultDateTypeId,
             ThoughtRelation::CHILD
 
         );
@@ -81,7 +80,7 @@ class TheBrainTest extends TestCase
     #[Depends('testCreateThoughtWithSource')]
     public function testLinkThoughtsAsJump()
     {
-        $linkId = $this->service->linkThoughts(
+        $linkId = $this->theBrainService->linkThoughts(
             self::$thoughtA,
             self::$thoughtB,
             ThoughtRelation::JUMP,
@@ -94,13 +93,13 @@ class TheBrainTest extends TestCase
     #[Depends('testCreateThoughtWithSource')]
     public function testLinkThoughtsAsChild()
     {
-        $linkIdA = $this->service->linkThoughts(
+        $linkIdA = $this->theBrainService->linkThoughts(
             $this->defaultDateTypeId,
             self::$thoughtA,
             ThoughtRelation::CHILD,
         );
 
-        $linkIdB = $this->service->linkThoughts(
+        $linkIdB = $this->theBrainService->linkThoughts(
             $this->defaultDateTypeId,
             self::$thoughtB,
             ThoughtRelation::CHILD,
