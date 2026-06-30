@@ -48,7 +48,11 @@ class CreateDateThoughtsCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
-        if (null === $parentNodeId)
+        if (null === $parentNodeId) {
+            $io->error('Не указан ID родительской ноды');
+
+            return Command::FAILURE;
+        }
 
         if (0 !== $month && ($month < 1 || $month > 12)) {
             $io->error('Номер месяца должен быть в диапазоне от 1 до 12');
